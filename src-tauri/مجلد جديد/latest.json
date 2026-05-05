@@ -1,0 +1,11 @@
+{
+  "version": "0.2.0",
+  "notes": "Update test",
+  "pub_date": "2026-05-04T00:00:00Z",
+  "platforms": {
+    "windows-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSZ0Z5eFA5REdaYXRXZFVEdUdFWStXTjVsOWt4QTVialF4Qmk1bTVOTDhwbE5ObFFSTkJ5dEJhOVpDdXJIejEzNnRGNWNhVDJjcE80dmoxOTJMOUNpU3Jtc1l2NEEvMGdjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzc3ODg1NTM0CWZpbGU6aGF6YXJfMC4yLjBfeDY0LXNldHVwLmV4ZQpOaWxkTERtOXRQeGV5K0V0dnRhb3piK0RoUHMyWGtPVDJJcXA5VUtDa2xFRnZIQndzSXFqUTU2cVh1UzVuVFZlMG1wSEo4blJoK20vVTB0MWMwUTZBZz09Cg==",
+      "url": "https://github.com/majdhazar/hazar-app/releases/download/v0.2.0/hazar_0.2.0_x64-setup.exe"
+    }
+  }
+}

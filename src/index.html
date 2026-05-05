@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>صيدلية هزار - نظام إدارة متكامل</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-primary: rgba(248, 250, 252, 0.92);
+            --bg-card: rgba(255, 255, 255, 0.94);
+            --surface-soft: rgba(255, 255, 255, 0.66);
+            --text-primary: #142033;
+            --text-secondary: #64748b;
+            --accent: #0f766e;
+            --accent-light: #14b8a6;
+            --accent-dark: #115e59;
+            --gold: #c18a25;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --border: rgba(148, 163, 184, 0.28);
+            --shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+            --radius: 18px;
+        }
+        body.dark {
+            --bg-primary: rgba(15, 23, 42, 0.90);
+            --bg-card: rgba(30, 41, 59, 0.92);
+            --surface-soft: rgba(51, 65, 85, 0.72);
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --border: rgba(148, 163, 184, 0.22);
+            --shadow: 0 24px 55px rgba(0, 0, 0, 0.34);
+        }
+        body {
+            min-height: 100vh;
+            color: var(--text-primary);
+            font-family: "Segoe UI", Tahoma, system-ui, sans-serif;
+            background:
+                radial-gradient(circle at 18% 12%, rgba(94, 234, 212, 0.22), transparent 26%),
+                radial-gradient(circle at 84% 16%, rgba(203, 213, 225, 0.18), transparent 28%),
+                radial-gradient(circle at 50% 100%, rgba(15, 118, 110, 0.24), transparent 34%),
+                linear-gradient(135deg, #07111f 0%, #0f2f3a 46%, #12372f 100%);
+            background-attachment: fixed;
+            padding: 14px;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.055) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
+            background-size: 42px 42px;
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,0.72), transparent 82%);
+        }
+        body.english { direction: ltr; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        .icon { width: 21px; height: 21px; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; flex: 0 0 auto; }
+        .main-content {
+            width: min(1180px, 100%);
+            margin: 0 auto;
+            min-height: calc(100vh - 126px);
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+            color: white;
+        }
+        .top-shell {
+            width: min(1120px, 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 4px 0 0;
+        }
+        body.english .top-shell { direction: ltr; }
+        .brand-block {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            min-width: 0;
+            justify-self: center;
+            padding: 0;
+        }
+        .brand-mark {
+            width: 52px;
+            height: 52px;
+            display: grid;
+            place-items: center;
+            border-radius: 18px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.98), rgba(226,232,240,0.78));
+            color: var(--accent-dark);
+            box-shadow: 0 16px 38px rgba(0,0,0,0.22), inset 0 0 0 1px rgba(255,255,255,0.60);
+        }
+        .brand-mark .icon { width: 28px; height: 28px; }
+        .logo {
+            font-size: clamp(28px, 4vw, 46px);
+            line-height: 1;
+            font-weight: 900;
+            letter-spacing: 0;
+            background: linear-gradient(135deg, #ffffff 0%, #f8df9c 55%, #ffffff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            white-space: nowrap;
+        }
+        .subtitle { color: rgba(255,255,255,0.82); font-size: 12px; margin-top: 6px; text-align: center; }
+        .button-bar {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 24px auto 4px;
+            flex-wrap: wrap;
+            width: min(520px, 100%);
+            position: relative;
+            z-index: 1;
+        }
+        button {
+            background: var(--accent);
+            color: white;
+            padding: 9px 16px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 800;
+            font-family: inherit;
+            transition: transform 0.18s ease, opacity 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+        }
+        button:hover { opacity: 0.94; transform: translateY(-1px); }
+        .action-btn {
+            min-height: 42px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255,255,255,0.28);
+            padding: 9px 12px;
+            border-radius: 14px;
+            color: white;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.10);
+        }
+        .action-btn:hover { background: rgba(255,255,255,0.24); }
+        #homePage { display: block; flex: 1; }
+        #homePage.hide-home { display: none; }
+        .home-shell {
+            width: min(1120px, 100%);
+            margin: 0 auto;
+            display: grid;
+            gap: 18px;
+            position: relative;
+            padding: 22px;
+            border-radius: 34px;
+            background:
+                linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.045)),
+                radial-gradient(circle at 16% 18%, rgba(45, 212, 191, 0.18), transparent 28%),
+                radial-gradient(circle at 88% 82%, rgba(251, 191, 36, 0.14), transparent 30%);
+            border: 1px solid rgba(255,255,255,0.18);
+            box-shadow: 0 26px 70px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.12);
+            backdrop-filter: blur(10px);
+        }
+        .home-shell::before {
+            content: "";
+            position: absolute;
+            inset: 12px;
+            border-radius: 26px;
+            border: 1px solid rgba(255,255,255,0.10);
+            pointer-events: none;
+        }
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 14px;
+            max-width: none;
+            margin: 0;
+            align-items: stretch;
+            position: relative;
+            z-index: 1;
+        }
+        .menu-card {
+            position: relative;
+            min-height: 154px;
+            background:
+                linear-gradient(145deg, rgba(255,255,255,0.94), rgba(248,250,252,0.80)),
+                linear-gradient(135deg, rgba(14,165,233,0.08), rgba(251,191,36,0.08));
+            border: 1px solid rgba(255,255,255,0.50);
+            border-radius: 24px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.25s ease;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .menu-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(15,118,110,0.14), transparent 48%, rgba(193,138,37,0.13));
+            opacity: 0;
+            transition: 0.25s ease;
+        }
+        body.dark .menu-card { background: linear-gradient(145deg, rgba(30,41,59,0.96), rgba(15,23,42,0.90)); border-color: rgba(148,163,184,0.25); }
+        .menu-card:hover {
+            transform: translateY(-4px) scale(1.01);
+            border-color: rgba(248, 223, 156, 0.75);
+            box-shadow: 0 24px 55px rgba(0,0,0,0.26);
+        }
+        .menu-card:hover::before { opacity: 1; }
+        .menu-icon {
+            position: relative;
+            width: 64px;
+            height: 64px;
+            display: grid;
+            place-items: center;
+            border-radius: 22px;
+            color: white;
+            background: linear-gradient(135deg, #0f766e, #22d3ee);
+            box-shadow: 0 14px 30px rgba(8,145,178,0.28), inset 0 1px 0 rgba(255,255,255,0.32);
+            transform: rotate(45deg);
+        }
+        .menu-icon::after {
+            content: "";
+            position: absolute;
+            inset: 7px;
+            border-radius: 17px;
+            border: 1px solid rgba(255,255,255,0.28);
+        }
+        .menu-icon.gold { background: linear-gradient(135deg, #b45309, #facc15); box-shadow: 0 14px 30px rgba(202,138,4,0.28); }
+        .menu-icon.blue { background: linear-gradient(135deg, #075985, #38bdf8); box-shadow: 0 14px 30px rgba(14,116,144,0.30); }
+        .menu-icon.violet { background: linear-gradient(135deg, #5b21b6, #c084fc); box-shadow: 0 14px 30px rgba(109,40,217,0.28); }
+        .menu-icon.green { background: linear-gradient(135deg, #15803d, #86efac); box-shadow: 0 14px 30px rgba(22,101,52,0.26); }
+        .menu-icon.rose { background: linear-gradient(135deg, #be123c, #fb7185); box-shadow: 0 14px 30px rgba(190,18,60,0.25); }
+        .menu-icon .icon { width: 31px; height: 31px; transform: rotate(-45deg); }
+        .menu-head {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+        .menu-arrow {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            width: 30px;
+            height: 30px;
+            display: grid;
+            place-items: center;
+            border-radius: 999px;
+            color: var(--accent-dark);
+            background: rgba(15,118,110,0.09);
+            border: 1px solid rgba(15,118,110,0.12);
+            font-size: 18px;
+            font-weight: 900;
+            transform: rotate(180deg);
+        }
+        body.dark .menu-arrow { color: #99f6e4; background: rgba(94,234,212,0.10); }
+        .menu-card span {
+            position: relative;
+            font-size: 16px;
+            font-weight: 900;
+            display: block;
+            color: var(--text-primary);
+        }
+        .menu-card small {
+            position: relative;
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 700;
+            min-height: 16px;
+        }
+        .menu-copy {
+            position: relative;
+            display: grid;
+            gap: 4px;
+            justify-items: center;
+        }
+        .quick-sale-btn {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 112px;
+            min-height: 32px;
+            padding: 7px 10px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #0f766e, #14b8a6);
+            border: 1px solid rgba(255,255,255,0.32);
+            box-shadow: 0 10px 22px rgba(15,118,110,0.24);
+            color: white;
+            font-size: 11px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            margin-top: -2px;
+        }
+        .quick-sale-btn .icon { width: 15px; height: 15px; }
+        .quick-sale-btn:hover { transform: translateY(-1px); opacity: 1; }
+        .quick-sale-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 2100;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            background: rgba(2, 6, 23, 0.48);
+            backdrop-filter: blur(10px);
+        }
+        .quick-sale-modal.active { display: flex; }
+        .quick-sale-card {
+            width: min(430px, 100%);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            padding: 18px;
+        }
+        .quick-sale-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .quick-sale-header h3 {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent-dark);
+        }
+        body.dark .quick-sale-header h3 { color: #5eead4; }
+        .google-search-box {
+            position: relative;
+            z-index: 1;
+            width: min(620px, 100%);
+            margin: 4px auto 0;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 8px;
+            padding: 8px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.16);
+            border: 1px solid rgba(255,255,255,0.24);
+            box-shadow: 0 14px 34px rgba(0,0,0,0.14);
+            backdrop-filter: blur(12px);
+        }
+        .google-search-box input {
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.22);
+            background: rgba(255,255,255,0.86);
+            color: #0f172a;
+            padding: 12px 16px;
+            font-size: 14px;
+        }
+        .google-search-box button {
+            border-radius: 999px;
+            padding: 10px 18px;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: linear-gradient(135deg, #2563eb, #0f766e);
+            white-space: nowrap;
+        }
+        .page {
+            display: none;
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border-radius: 24px;
+            padding: 18px;
+            border: 1px solid rgba(255,255,255,0.30);
+            box-shadow: var(--shadow);
+            width: min(1120px, 100%);
+            margin: 0 auto;
+            max-height: calc(100vh - 132px);
+            overflow: auto;
+        }
+        .page.active { display: block; animation: fadeInUp 0.35s ease; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+        }
+        .page-header h2 {
+            font-size: 23px;
+            color: var(--accent-dark);
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+        }
+        body.dark .page-header h2 { color: #5eead4; }
+        .page-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+        .close-page, .back-home, .new-invoice-btn {
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .close-page { background: #b91c1c; }
+        .back-home { background: #334155; }
+        .new-invoice-btn { background: linear-gradient(135deg, var(--success), #15803d); }
+        .form-container {
+            display: none;
+            background: var(--bg-primary);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 14px;
+            border: 1px solid var(--border);
+        }
+        .form-container.show { display: block; }
+        .form-container h3, .table-container h3 { margin-bottom: 10px; font-size: 16px; color: var(--text-primary); }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 5px; font-weight: 750; font-size: 13px; color: var(--text-secondary); }
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--surface-soft);
+            font-size: 14px;
+            color: var(--text-primary);
+            outline: none;
+        }
+        input:focus, select:focus { border-color: var(--accent-light); box-shadow: 0 0 0 3px rgba(20,184,166,0.14); }
+        .table-container { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 14px; background: rgba(255,255,255,0.35); }
+        .table-container h3 { padding: 12px 12px 0; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 680px; }
+        th, td { padding: 10px; text-align: center; border-bottom: 1px solid var(--border); white-space: nowrap; }
+        th { background: linear-gradient(135deg, var(--accent-dark), var(--accent)); color: white; font-weight: 850; }
+        .today-badge, .stat-badge {
+            background: rgba(255,255,255,0.76);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 8px 13px;
+            border-radius: 999px;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 800;
+        }
+        body.dark .today-badge, body.dark .stat-badge { background: rgba(15,23,42,0.46); }
+        .stats-summary { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 14px; }
+        .stat-card {
+            background: linear-gradient(135deg, var(--accent-dark), var(--accent-light));
+            color: white;
+            padding: 16px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 12px 26px rgba(15,118,110,0.20);
+        }
+        .stat-card .value { font-size: clamp(18px, 2.5vw, 25px); font-weight: 900; margin-top: 7px; overflow-wrap: anywhere; }
+        .footer {
+            width: min(1180px, calc(100% - 28px));
+            margin: 10px auto 0;
+            display: grid;
+            grid-template-columns: 1fr minmax(260px, 1.15fr) 1fr;
+            gap: 10px;
+            align-items: stretch;
+        }
+        .datetime-card, .exchange-rate, .profit-widget {
+            min-height: 76px;
+            background: rgba(255,255,255,0.14);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255,255,255,0.26);
+            border-radius: 20px;
+            padding: 10px 14px;
+            color: white;
+            box-shadow: 0 14px 35px rgba(0,0,0,0.16);
+        }
+        .datetime-card { text-align: center; }
+        .clock { font-size: 24px; font-weight: 900; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; display: inline-flex; align-items: center; gap: 6px; }
+        .date { font-size: 12px; color: rgba(255,255,255,0.92); margin-top: 5px; }
+        .exchange-rate { display: grid; align-content: center; text-align: center; font-weight: 900; }
+        .exchange-rate .label, .profit-footer-item .label { font-size: 11px; color: rgba(255,255,255,0.78); }
+        .exchange-rate .value { margin-top: 5px; }
+        .profit-widget { padding: 10px; }
+        .profit-widget-btn {
+            width: 100%;
+            background: rgba(255,255,255,0.16);
+            border: 1px solid rgba(255,255,255,0.24);
+            border-radius: 13px;
+            padding: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .profit-footer-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-top: 8px; text-align: center; }
+        .profit-footer-item { background: rgba(255,255,255,0.13); border-radius: 11px; padding: 7px 5px; min-width: 0; }
+        .profit-footer-item .value { font-size: 11px; font-weight: 900; overflow-wrap: anywhere; }
+        .calculator-modal, .modal { display: none; position: fixed; inset: 0; background: rgba(2,6,23,0.72); justify-content: center; align-items: center; z-index: 2000; padding: 18px; }
+        .calculator-modal.active, .modal.active { display: flex; }
+        .calculator-card, .modal-content { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 18px; box-shadow: var(--shadow); }
+        .calculator-card { width: min(330px, 100%); }
+        .modal-content { max-width: 420px; width: min(420px, 100%); }
+        #settingsModal .modal-content { max-width: 560px; }
+        .settings-title {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            margin-bottom: 16px;
+            color: var(--accent-dark);
+        }
+        body.dark .settings-title { color: #5eead4; }
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .settings-panel {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 14px;
+        }
+        .settings-panel.full { grid-column: 1 / -1; }
+        .settings-panel h4 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+        .settings-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+        .google-status {
+            margin-top: 8px;
+            padding: 8px 10px;
+            border-radius: 12px;
+            background: rgba(15, 118, 110, 0.10);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 750;
+        }
+        .settings-note {
+            margin-top: 8px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            line-height: 1.7;
+        }
+        .calculator-header { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 13px; }
+        .calc-display { background: var(--bg-primary); padding: 14px; border-radius: 15px; font-size: 27px; text-align: left; margin-bottom: 13px; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-weight: 900; overflow: hidden; }
+        .calc-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .calc-btn { padding: 12px; font-size: 18px; border-radius: 12px; background: var(--surface-soft); border: 1px solid var(--border); color: var(--text-primary); }
+        .edit-btn, .add-debt-btn, .delete-btn { padding: 6px 10px; font-size: 11px; border-radius: 8px; cursor: pointer; border: none; color: white; }
+        .edit-btn { background: #0284c7; }
+        .add-debt-btn { background: #7c3aed; }
+        .delete-btn { background: #dc2626; }
+        .inline-actions { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+        @media (max-width: 920px) {
+            body { padding: 10px; }
+            .main-content { min-height: auto; }
+            .top-shell { padding-top: 2px; }
+            .header { margin-bottom: 10px; }
+            .brand-block { padding: 4px 12px; }
+            .home-shell { padding: 14px; border-radius: 24px; gap: 14px; }
+            .button-bar { gap: 8px; }
+            .action-btn { flex: 1; min-width: 44px; padding: 10px; border-radius: 14px; }
+            .menu-grid { grid-template-columns: repeat(3, minmax(96px, 1fr)); gap: 10px; }
+            .menu-card { min-height: 122px; padding: 14px 8px; }
+            .menu-icon { width: 50px; height: 50px; border-radius: 17px; }
+            .menu-icon .icon { width: 27px; height: 27px; }
+            .footer { grid-template-columns: 1fr; width: 100%; }
+            .page { max-height: none; padding: 14px; }
+        }
+        @media (max-width: 560px) {
+            .brand-mark { width: 42px; height: 42px; border-radius: 14px; }
+            .logo { font-size: 28px; }
+            .top-shell { padding: 0; }
+            .brand-block { gap: 9px; }
+            .home-shell { padding: 12px; gap: 12px; }
+            .google-search-box { grid-template-columns: 1fr; border-radius: 20px; }
+            .google-search-box input, .google-search-box button { border-radius: 14px; }
+            .button-bar { display: grid; grid-template-columns: repeat(4, 1fr); }
+            .action-btn span { display: none; }
+            .menu-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .menu-card { min-height: 112px; gap: 9px; }
+            .menu-card span { font-size: 14px; }
+            .menu-card small { display: none; }
+            .page-header { align-items: flex-start; flex-direction: column; }
+            .page-actions { width: 100%; justify-content: stretch; }
+            .page-actions button { flex: 1; justify-content: center; min-width: 0; }
+            .stats-summary { display: grid; grid-template-columns: 1fr; }
+            .clock { font-size: 21px; }
+            .settings-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-height: 720px) and (min-width: 921px) {
+            body { padding-top: 10px; }
+            .brand-mark { width: 42px; height: 42px; border-radius: 14px; }
+            .logo { font-size: 34px; }
+            .subtitle { margin-top: 3px; }
+            .menu-card { min-height: 118px; padding: 12px 10px; }
+            .menu-icon { width: 48px; height: 48px; border-radius: 16px; }
+            .footer { margin-top: 8px; }
+            .datetime-card, .exchange-rate, .profit-widget { min-height: 68px; }
+        }
+    </style>
+</head>
+<body>
+
+<svg class="sr-only" aria-hidden="true">
+    <symbol id="i-pill" viewBox="0 0 24 24"><path d="m10.5 20.5 10-10a5 5 0 0 0-7-7l-10 10a5 5 0 0 0 7 7Z"/><path d="m8.5 8.5 7 7"/></symbol>
+    <symbol id="i-calculator" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="8" y2="10"/><line x1="12" y1="10" x2="12" y2="10"/><line x1="16" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="8" y2="14"/><line x1="12" y1="14" x2="12" y2="14"/><line x1="16" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="8" y2="18"/><line x1="12" y1="18" x2="12" y2="18"/><line x1="16" y1="18" x2="16" y2="18"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6.8 6.8 0 0 0 8.8 8.8A9 9 0 1 1 12 3Z"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 0 20"/><path d="M12 2a15.3 15.3 0 0 0 0 20"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5Z"/><path d="M19.4 15a1.8 1.8 0 0 0 .36 2l.07.07a2.1 2.1 0 0 1-3 3l-.07-.07a1.8 1.8 0 0 0-2-.36 1.8 1.8 0 0 0-1 1.64V21a2.1 2.1 0 0 1-4.2 0v-.11a1.8 1.8 0 0 0-1-1.64 1.8 1.8 0 0 0-2 .36l-.07.07a2.1 2.1 0 1 1-3-3l.07-.07a1.8 1.8 0 0 0 .36-2 1.8 1.8 0 0 0-1.64-1H3a2.1 2.1 0 1 1 0-4.2h.11a1.8 1.8 0 0 0 1.64-1 1.8 1.8 0 0 0-.36-2l-.07-.07a2.1 2.1 0 1 1 3-3l.07.07a1.8 1.8 0 0 0 2 .36h.01a1.8 1.8 0 0 0 1-1.64V3a2.1 2.1 0 1 1 4.2 0v.11a1.8 1.8 0 0 0 1 1.64 1.8 1.8 0 0 0 2-.36l.07-.07a2.1 2.1 0 1 1 3 3l-.07.07a1.8 1.8 0 0 0-.36 2v.01a1.8 1.8 0 0 0 1.64 1H21a2.1 2.1 0 1 1 0 4.2h-.11a1.8 1.8 0 0 0-1.49.8Z"/></symbol>
+    <symbol id="i-cart" viewBox="0 0 24 24"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.5 3h2l2.3 12.2A2 2 0 0 0 8.8 17h8.9a2 2 0 0 0 2-1.6L21 8H6"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M10 17H5a2 2 0 0 1-2-2V6h11v11"/><path d="M14 9h4l3 4v2a2 2 0 0 1-2 2h-1"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></symbol>
+    <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M19 7V5a2 2 0 0 0-2-2H5a3 3 0 0 0 0 6h15a1 1 0 0 1 1 1v8a2 2 0 0 1-2 2H5a3 3 0 0 1-3-3V6"/><path d="M17 14h.01"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-7"/></symbol>
+    <symbol id="i-warehouse" viewBox="0 0 24 24"><path d="M3 21V8l9-5 9 5v13"/><path d="M7 21V11h10v10"/><path d="M7 15h10"/><path d="M7 18h10"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8"/><path d="M5 10v11h14V10"/><path d="M9 21v-7h6v7"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+    <symbol id="i-save" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+</svg>
+
+<div class="main-content">
+    <div class="header">
+        <div class="top-shell">
+            <div class="brand-block">
+                <div class="brand-mark"><svg class="icon"><use href="#i-pill"></use></svg></div>
+                <div>
+                    <div class="logo"><span id="logoText">صيدلية هزار</span></div>
+                    <div class="subtitle" id="subtitleText">نظام إدارة ذكي | سوريا</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="homePage">
+        <div class="home-shell">
+            <div class="menu-grid">
+                <div class="menu-card" onclick="openPage('sales')"><div class="menu-head"><div class="menu-icon"><svg class="icon"><use href="#i-cart"></use></svg></div><div class="menu-arrow">‹</div></div><button class="quick-sale-btn" onclick="openQuickSale(event)"><svg class="icon"><use href="#i-plus"></use></svg> بيع سريع</button><div class="menu-copy"><span>المبيعات</span><small>فواتير اليوم</small></div></div>
+                <div class="menu-card" onclick="openPage('purchases')"><div class="menu-head"><div class="menu-icon blue"><svg class="icon"><use href="#i-truck"></use></svg></div><div class="menu-arrow">‹</div></div><div class="menu-copy"><span>المشتريات</span><small>إدخال التكاليف</small></div></div>
+                <div class="menu-card" onclick="openPage('debts')"><div class="menu-head"><div class="menu-icon gold"><svg class="icon"><use href="#i-wallet"></use></svg></div><div class="menu-arrow">‹</div></div><div class="menu-copy"><span>الديون</span><small>متابعة الزبائن</small></div></div>
+                <div class="menu-card" onclick="openPage('reports')"><div class="menu-head"><div class="menu-icon violet"><svg class="icon"><use href="#i-chart"></use></svg></div><div class="menu-arrow">‹</div></div><div class="menu-copy"><span>التقارير</span><small>ملخص الأداء</small></div></div>
+                <div class="menu-card" onclick="openPage('warehouses')"><div class="menu-head"><div class="menu-icon green"><svg class="icon"><use href="#i-warehouse"></use></svg></div><div class="menu-arrow">‹</div></div><div class="menu-copy"><span>المستودعات</span><small>حسابات الموردين</small></div></div>
+                <div class="menu-card" onclick="openPage('profit')"><div class="menu-head"><div class="menu-icon rose"><svg class="icon"><use href="#i-wallet"></use></svg></div><div class="menu-arrow">‹</div></div><div class="menu-copy"><span>صافي الربح</span><small>الأرباح اليومية</small></div></div>
+            </div>
+            <form class="google-search-box" action="https://www.google.com/search" method="get" target="_blank" onsubmit="searchGoogle(event)">
+                <input type="search" id="googleSearchInput" name="q" placeholder="ابحث في Google..." autocomplete="off">
+                <button type="submit"><svg class="icon"><use href="#i-globe"></use></svg> بحث</button>
+            </form>
+            <div class="button-bar">
+                <button class="action-btn" onclick="openCalculatorModal()" title="آلة حاسبة"><svg class="icon"><use href="#i-calculator"></use></svg><span id="calculatorBtn">آلة حاسبة</span></button>
+                <button class="action-btn" onclick="toggleTheme()" title="وضع مظلم"><svg class="icon"><use href="#i-moon"></use></svg><span id="darkModeBtn">وضع مظلم</span></button>
+                <button class="action-btn" onclick="toggleLanguage()" title="اللغة"><svg class="icon"><use href="#i-globe"></use></svg><span id="languageBtn">اللغة</span></button>
+                <button class="action-btn settings-btn" onclick="openSettings()" title="إعدادات"><svg class="icon"><use href="#i-settings"></use></svg><span id="settingsBtn">إعدادات</span></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="salesPage" class="page">
+        <div class="page-header">
+            <h2><svg class="icon"><use href="#i-cart"></use></svg> المبيعات</h2>
+            <div class="page-actions">
+                <button class="new-invoice-btn" onclick="toggleSalesForm()"><svg class="icon"><use href="#i-plus"></use></svg> فاتورة جديدة</button>
+                <button class="back-home" onclick="goHome()" title="الرئيسية"><svg class="icon"><use href="#i-home"></use></svg></button>
+                <button class="close-page" onclick="closePage('salesPage')" title="إغلاق"><svg class="icon"><use href="#i-x"></use></svg></button>
+            </div>
+        </div>
+        <div id="salesForm" class="form-container">
+            <h3>فاتورة جديدة</h3>
+            <div class="form-group"><label>اسم المادة</label><input type="text" id="itemName" placeholder="مثال: بنادول"></div>
+            <div class="form-group"><label>العدد</label><input type="number" id="itemQty" placeholder="الكمية"></div>
+            <div class="form-group"><label>السعر (ل.س)</label><input type="number" id="itemPrice" placeholder="السعر بالليرة" oninput="updateUsdPrice()"><small class="usd-hint" id="usdHint"></small></div>
+            <div class="form-group"><label>نوع البيع</label><select id="paymentType"><option value="cash">نقدي</option><option value="credit">دين</option></select></div>
+            <div class="form-group" id="customerDiv" style="display:none;"><label>اسم الزبون</label><input type="text" id="customerName" placeholder="اسم الزبون"></div>
+            <button onclick="addSale()"><svg class="icon"><use href="#i-save"></use></svg> حفظ الفاتورة</button>
+            <button onclick="toggleSalesForm()" style="background:#64748b;">إلغاء</button>
+        </div>
+        <div class="stats-summary">
+            <div class="today-badge">اليوم: <span id="todayDate"></span></div>
+            <div class="stat-badge">إجمالي مبيعات اليوم: <span id="todaySalesTotal">0</span> ل.س</div>
+        </div>
+        <div class="table-container">
+            <h3>مبيعات اليوم</h3>
+            <table>
+                <thead><tr><th>الوقت</th><th>المادة</th><th>العدد</th><th>السعر</th><th>المجموع</th><th>النوع</th><th>الزبون</th></tr></thead>
+                <tbody id="todaySalesTable"></tbody>
+            </table>
+        </div>
+        <div class="table-container">
+            <h3>جميع المبيعات السابقة</h3>
+            <table>
+                <thead><tr><th>التاريخ</th><th>المادة</th><th>العدد</th><th>السعر</th><th>المجموع</th><th>النوع</th><th>الزبون</th><th>تعديل</th></tr></thead>
+                <tbody id="allSalesTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="purchasesPage" class="page">
+        <div class="page-header">
+            <h2><svg class="icon"><use href="#i-truck"></use></svg> المشتريات</h2>
+            <div class="page-actions">
+                <button class="new-invoice-btn" onclick="togglePurchasesForm()"><svg class="icon"><use href="#i-plus"></use></svg> فاتورة جديدة</button>
+                <button class="back-home" onclick="goHome()" title="الرئيسية"><svg class="icon"><use href="#i-home"></use></svg></button>
+                <button class="close-page" onclick="closePage('purchasesPage')" title="إغلاق"><svg class="icon"><use href="#i-x"></use></svg></button>
+            </div>
+        </div>
+        <div id="purchasesForm" class="form-container">
+            <h3>فاتورة مشتريات جديدة</h3>
+            <div class="form-group"><label>بيان الشراء</label><input type="text" id="purchaseDesc" placeholder="مثال: فاتورة شركة الحكمة"></div>
+            <div class="form-group"><label>المبلغ (ل.س)</label><input type="number" id="purchaseAmount" placeholder="المبلغ"></div>
+            <button onclick="addPurchase()"><svg class="icon"><use href="#i-save"></use></svg> حفظ الفاتورة</button>
+            <button onclick="togglePurchasesForm()" style="background:#64748b;">إلغاء</button>
+        </div>
+        <div class="stats-summary">
+            <div class="today-badge">اليوم: <span id="todayDatePurchases"></span></div>
+            <div class="stat-badge">إجمالي مشتريات اليوم: <span id="todayPurchasesTotal">0</span> ل.س</div>
+        </div>
+        <div class="table-container">
+            <h3>مشتريات اليوم</h3>
+            <table>
+                <thead><tr><th>الوقت</th><th>البيان</th><th>المبلغ</th></tr></thead>
+                <tbody id="todayPurchasesTable"></tbody>
+            </table>
+        </div>
+        <div class="table-container">
+            <h3>جميع المشتريات السابقة</h3>
+            <table>
+                <thead><tr><th>التاريخ</th><th>البيان</th><th>المبلغ</th></tr></thead>
+                <tbody id="allPurchasesTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="debtsPage" class="page">
+        <div class="page-header">
+            <h2><svg class="icon"><use href="#i-wallet"></use></svg> الديون</h2>
+            <div class="page-actions">
+                <button class="new-invoice-btn" onclick="toggleDebtsForm()"><svg class="icon"><use href="#i-plus"></use></svg> دين جديد</button>
+                <button class="back-home" onclick="goHome()" title="الرئيسية"><svg class="icon"><use href="#i-home"></use></svg></button>
+                <button class="close-page" onclick="closePage('debtsPage')" title="إغلاق"><svg class="icon"><use href="#i-x"></use></svg></button>
+            </div>
+        </div>
+        <div id="debtsForm" class="form-container">
+            <h3>تسجيل دين جديد</h3>
+            <div class="form-group"><label>اسم الزبون</label><input type="text" id="debtCustomer" placeholder="الاسم"></div>
+            <div class="form-group"><label>المبلغ (ل.س)</label><input type="number" id="debtAmount" placeholder="المبلغ"></div>
+            <button onclick="addDebt()">حفظ</button>
+            <button onclick="toggleDebtsForm()" style="background:#64748b;">إلغاء</button>
+        </div>
+        <div class="table-container">
+            <h3>قائمة الديون</h3>
+            <table>
+                <thead><tr><th>الزبون</th><th>المبلغ</th><th>المدفوع</th><th>المتبقي</th><th>التاريخ</th><th>تسديد</th><th>إضافة دين</th></tr></thead>
+                <tbody id="debtsTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="reportsPage" class="page">
+        <div class="page-header">
+            <h2><svg class="icon"><use href="#i-chart"></use></svg> التقارير</h2>
+            <div class="page-actions">
+                <button class="back-home" onclick="goHome()" title="الرئيسية"><svg class="icon"><use href="#i-home"></use></svg></button>
+                <button class="close-page" onclick="closePage('reportsPage')" title="إغلاق"><svg class="icon"><use href="#i-x"></use></svg></button>
+            </div>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-card"><h4>اليوم</h4><div class="value" id="dailyTotal">0</div></div>
+            <div class="stat-card"><h4>الأسبوع</h4><div class="value" id="weeklyTotal">0</div></div>
+            <div class="stat-card"><h4>الشهر</h4><div class="value" id="monthlyTotal">0</div></div>
+            <div class="stat-card"><h4>السنة</h4><div class="value" id="yearlyTotal">0</div></div>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-card"><h4>إجمالي المشتريات (شهر)</h4><div class="value" id="monthlyPurchases">0</div></div>
+            <div class="stat-card"><h4>الديون المستحقة</h4><div class="value" id="totalDebts">0</div></div>
+        </div>
+        <button onclick="exportBackup()">نسخ احتياطي</button>
+        <button onclick="importBackup()">استعادة نسخة</button>
+    </div>
+
+    <div id="warehousesPage" class="page">
+        <div class="page-header">
+            <h2><svg class="icon"><use href="#i-warehouse"></use></svg> حساب المستودعات</h2>
+            <div class="page-actions">
+                <button class="new-invoice-btn" onclick="toggleWarehouseForm()"><svg class="icon"><use href="#i-plus"></use></svg> مستودع جديد</button>
+                <button class="back-home" onclick="goHome()" title="الرئيسية"><svg class="icon"><use href="#i-home"></use></svg></button>
+                <button class="close-page" onclick="closePage('warehousesPage')" title="إغلاق"><svg class="icon"><use href="#i-x"></use></svg></button>
+            </div>
+        </div>
+        <div id="warehouseForm" class="form-container">
+            <h3>إضافة مستودع جديد</h3>
+            <div class="form-group"><label>اسم المستودع</label><input type="text" id="warehouseName" placeholder="مثال: مستودع الأدوية"></div>
+            <div class="form-group"><label>الرصيد الافتتاحي (ل.س)</label><input type="number" id="openingBalance" placeholder="0" value="0"></div>
+            <button onclick="addWarehouse()">حفظ</button>
+            <button onclick="toggleWarehouseForm()" style="background:#64748b;">إلغاء</button>
+        </div>
+        <div id="addBalanceForm" class="form-container">
+            <h3>إضافة رصيد للمستودع</h3>
+            <div class="form-group"><label>اختر المستودع</label><select id="selectWarehouse"></select></div>
+            <div class="form-group"><label>المبلغ المضاف (ل.س)</label><input type="number" id="addBalanceAmount" placeholder="المبلغ"></div>
+            <div class="form-group"><label>ملاحظات</label><input type="text" id="addBalanceNotes" placeholder="سبب الإضافة"></div>
+            <button onclick="addBalance()">إضافة رصيد</button>
+            <button onclick="hideAddBalanceForm()" style="background:#64748b;">إلغاء</button>
+        </div>
+        <div id="paymentForm" class="form-container">
+            <h3>تسجيل دفعة للمستودع</h3>
+            <div class="form-group"><label>اختر المستودع</label><select id="selectWarehousePayment"></select></div>
+            <div class="form-group"><label>المبلغ المدفوع (ل.س)</label><input type="number" id="paymentAmount" placeholder="المبلغ"></div>
+            <div class="form-group"><label>ملاحظات</label><input type="text" id="paymentNotes" placeholder="ملاحظات عن الدفعة"></div>
+            <button onclick="addPayment()">تسجيل دفعة</button>
+            <button onclick="hidePaymentForm()" style="background:#64748b;">إلغاء</button>
+        </div>
+        <div class="inline-actions">
+            <button onclick="showAddBalanceForm()" style="background:#0284c7;">إضافة رصيد (استلام طلبية)</button>
+            <button onclick="showPaymentForm()" style="background:#d97706;">تسجيل دفعة</button>
+        </div>
+        <div class="table-container">
+            <h3>قائمة المستودعات</h3>
+            <table>
+                <thead><tr><th>المستودع</th><th>الرصيد الافتتاحي</th><th>إجمالي الإضافات</th><th>إجمالي الدفعات</th><th>الرصيد الحالي</th><th>آخر تحديث</th><th>إجراءات</th></tr></thead>
+                <tbody id="warehousesTable"></tbody>
+            </table>
+        </div>
+        <div class="table-container">
+            <h3>سجل حركات المستودعات</h3>
+            <table>
+                <thead><tr><th>التاريخ</th><th>المستودع</th><th>النوع</th><th>المبلغ</th><th>الملاحظات</th></tr></thead>
+                <tbody id="transactionsTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="profitPage" class="page">
+        <div class="page-header">
+            <h2><svg class="icon"><use href="#i-wallet"></use></svg> صافي الربح</h2>
+            <div class="page-actions">
+                <button class="back-home" onclick="goHome()" title="الرئيسية"><svg class="icon"><use href="#i-home"></use></svg></button>
+                <button class="close-page" onclick="closePage('profitPage')" title="إغلاق"><svg class="icon"><use href="#i-x"></use></svg></button>
+            </div>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-card"><h4>صافي الربح اليومي</h4><div class="value" id="dailyProfitTotal">0</div></div>
+            <div class="stat-card"><h4>صافي الربح الشهري</h4><div class="value" id="monthlyProfitTotal">0</div></div>
+            <div class="stat-card"><h4>صافي الربح السنوي</h4><div class="value" id="yearlyProfitTotal">0</div></div>
+        </div>
+        <div class="form-container show">
+            <h3>تسجيل صافي الربح اليومي</h3>
+            <div class="form-group"><label>التاريخ</label><input type="date" id="profitDate"></div>
+            <div class="form-group"><label>صافي الربح (ل.س)</label><input type="number" id="profitAmount" placeholder="أدخل صافي الربح اليومي"></div>
+            <div class="form-group"><label>ملاحظات</label><input type="text" id="profitNote" placeholder="ملاحظة اختيارية"></div>
+            <button onclick="addDailyProfit()">حفظ صافي الربح</button>
+        </div>
+        <div class="table-container">
+            <h3>سجل صافي الربح اليومي</h3>
+            <table>
+                <thead><tr><th>التاريخ</th><th>المبلغ</th><th>ملاحظات</th></tr></thead>
+                <tbody id="profitTable"></tbody>
+            </table>
+        </div>
+        <div class="table-container">
+            <h3>الأرباح الشهرية المسجلة</h3>
+            <table>
+                <thead><tr><th>الشهر</th><th>المجموع</th></tr></thead>
+                <tbody id="monthlyProfitTable"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="footer">
+    <div class="exchange-rate" id="exchangeRateDisplay">
+        <div class="label">سعر الصرف</div>
+        <div class="value" id="rateValue">1$ = -- ل.س</div>
+    </div>
+    <div class="profit-widget">
+        <button class="profit-widget-btn" onclick="openPage('profit')"><svg class="icon"><use href="#i-wallet"></use></svg> صافي الربح</button>
+        <div class="profit-footer-stats">
+            <div class="profit-footer-item"><div class="label">اليومي</div><div class="value" id="footerDailyProfit">0</div></div>
+            <div class="profit-footer-item"><div class="label">الشهري</div><div class="value" id="footerMonthlyProfit">0</div></div>
+            <div class="profit-footer-item"><div class="label">السنوي</div><div class="value" id="footerYearlyProfit">0</div></div>
+        </div>
+    </div>
+    <div class="datetime-card">
+        <div class="clock"><svg class="icon"><use href="#i-clock"></use></svg><span id="clock">--:--:--</span></div>
+        <div class="date" id="date">--، -- -- ----</div>
+    </div>
+</div>
+
+<div id="calculatorModal" class="calculator-modal">
+    <div class="calculator-card">
+        <div class="calculator-header">
+            <h3><svg class="icon"><use href="#i-calculator"></use></svg> آلة حاسبة</h3>
+            <button class="close-calculator" onclick="closeCalculatorModal()" style="background:#dc2626;" title="إغلاق"><svg class="icon"><use href="#i-x"></use></svg></button>
+        </div>
+        <div class="calc-display" id="calcDisplayModal">0</div>
+        <div class="calc-buttons">
+            <button class="calc-btn" onclick="calcPressModal('7')">7</button>
+            <button class="calc-btn" onclick="calcPressModal('8')">8</button>
+            <button class="calc-btn" onclick="calcPressModal('9')">9</button>
+            <button class="calc-btn" onclick="calcPressModal('/')">/</button>
+            <button class="calc-btn" onclick="calcPressModal('4')">4</button>
+            <button class="calc-btn" onclick="calcPressModal('5')">5</button>
+            <button class="calc-btn" onclick="calcPressModal('6')">6</button>
+            <button class="calc-btn" onclick="calcPressModal('*')">*</button>
+            <button class="calc-btn" onclick="calcPressModal('1')">1</button>
+            <button class="calc-btn" onclick="calcPressModal('2')">2</button>
+            <button class="calc-btn" onclick="calcPressModal('3')">3</button>
+            <button class="calc-btn" onclick="calcPressModal('-')">-</button>
+            <button class="calc-btn" onclick="calcPressModal('0')">0</button>
+            <button class="calc-btn" onclick="calcPressModal('.')">.</button>
+            <button class="calc-btn" onclick="calcResultModal()">=</button>
+            <button class="calc-btn" onclick="calcPressModal('+')">+</button>
+            <button class="calc-btn" onclick="calcClearModal()" style="background:#dc2626; color:white;">C</button>
+        </div>
+    </div>
+</div>
+
+<div id="quickSaleModal" class="quick-sale-modal">
+    <div class="quick-sale-card">
+        <div class="quick-sale-header">
+            <h3><svg class="icon"><use href="#i-cart"></use></svg> فاتورة مبيعات سريعة</h3>
+            <button onclick="closeQuickSale()" style="background:#dc2626;" title="إغلاق"><svg class="icon"><use href="#i-x"></use></svg></button>
+        </div>
+        <div class="form-group"><label>اسم المادة</label><input type="text" id="quickItemName" placeholder="مثال: بنادول"></div>
+        <div class="form-group"><label>العدد</label><input type="number" id="quickItemQty" placeholder="الكمية"></div>
+        <div class="form-group"><label>السعر (ل.س)</label><input type="number" id="quickItemPrice" placeholder="السعر بالليرة" oninput="updateQuickUsdPrice()"><small class="usd-hint" id="quickUsdHint"></small></div>
+        <div class="form-group"><label>نوع البيع</label><select id="quickPaymentType" onchange="toggleQuickCustomer()"><option value="cash">نقدي</option><option value="credit">دين</option></select></div>
+        <div class="form-group" id="quickCustomerDiv" style="display:none;"><label>اسم الزبون</label><input type="text" id="quickCustomerName" placeholder="اسم الزبون"></div>
+        <button onclick="addQuickSale()"><svg class="icon"><use href="#i-save"></use></svg> حفظ الفاتورة</button>
+        <button onclick="closeQuickSale()" style="background:#64748b;">إلغاء</button>
+    </div>
+</div>
+
+<div id="settingsModal" class="modal">
+    <div class="modal-content">
+        <h3 class="settings-title"><svg class="icon"><use href="#i-settings"></use></svg> الإعدادات</h3>
+        <div class="settings-grid">
+            <div class="settings-panel">
+                <h4>سعر الصرف</h4>
+                <div class="form-group"><label>سعر الدولار مقابل الليرة السورية</label><input type="number" id="usdRate" value="15000"></div>
+                <button onclick="saveCurrencyRate()">حفظ السعر</button>
+            </div>
+            <div class="settings-panel">
+                <h4>المظهر واللغة</h4>
+                <div class="settings-actions">
+                    <button onclick="toggleTheme()"><svg class="icon"><use href="#i-moon"></use></svg> الوضع المظلم</button>
+                    <button onclick="toggleLanguage()"><svg class="icon"><use href="#i-globe"></use></svg> تبديل اللغة</button>
+                </div>
+            </div>
+            <div class="settings-panel full">
+                <h4><svg class="icon"><use href="#i-save"></use></svg> Google Drive Backup</h4>
+                <div class="form-group">
+                    <label>Google OAuth Client ID</label>
+                    <input type="text" id="googleClientId" placeholder="ضع Client ID من Google Cloud Console">
+                </div>
+                <div class="settings-actions">
+                    <button onclick="saveGoogleClientId()">حفظ Client ID</button>
+                    <button onclick="connectGoogleDrive()" style="background:#2563eb;">ربط حساب Google</button>
+                    <button onclick="backupToGoogleDrive()" style="background:#16a34a;">نسخ احتياطي إلى Drive</button>
+                    <button onclick="restoreFromGoogleDrive()" style="background:#d97706;">استعادة من Drive</button>
+                </div>
+                <div class="google-status" id="googleDriveStatus">غير مرتبط بحساب Google</div>
+                <div class="settings-note">للتفعيل الحقيقي: أنشئ OAuth Client ID من Google Cloud، فعّل Google Drive API، وأضف رابط تشغيل التطبيق ضمن Authorized JavaScript origins. النسخة تحفظ في مجلد التطبيق المخفي داخل Google Drive.</div>
+            </div>
+        </div>
+        <button onclick="closeSettings()" style="background:#64748b;">إغلاق</button>
+    </div>
+</div>
+
+<script>
+    let sales = [], purchases = [], debts = [], warehouses = [], warehouseTransactions = [];
+    let dailyProfits = [], monthlyProfitArchive = {};
+    let currencyRate = 15000, currentLang = 'ar', currentTheme = 'light';
+    let calcValueModal = '0';
+    let googleClientId = '', googleTokenClient = null, googleAccessToken = '';
+    const GOOGLE_DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
+    const GOOGLE_BACKUP_FILE = 'Hazar_Pharmacy_Backup.json';
+
+    function openCalculatorModal() { document.getElementById('calculatorModal').classList.add('active'); calcValueModal = '0'; document.getElementById('calcDisplayModal').innerText = calcValueModal; }
+    function closeCalculatorModal() { document.getElementById('calculatorModal').classList.remove('active'); }
+    function calcPressModal(val) { if(calcValueModal === '0') calcValueModal = val; else calcValueModal += val; document.getElementById('calcDisplayModal').innerText = calcValueModal; }
+    function calcResultModal() { try { calcValueModal = eval(calcValueModal).toString(); document.getElementById('calcDisplayModal').innerText = calcValueModal; } catch(e) { calcValueModal = 'Error'; document.getElementById('calcDisplayModal').innerText = calcValueModal; } }
+    function calcClearModal() { calcValueModal = '0'; document.getElementById('calcDisplayModal').innerText = calcValueModal; }
+
+    function loadData() {
+        if(localStorage.getItem('salesData')) sales = JSON.parse(localStorage.getItem('salesData'));
+        if(localStorage.getItem('purchasesData')) purchases = JSON.parse(localStorage.getItem('purchasesData'));
+        if(localStorage.getItem('debtsData')) debts = JSON.parse(localStorage.getItem('debtsData'));
+        if(localStorage.getItem('warehousesData')) warehouses = JSON.parse(localStorage.getItem('warehousesData'));
+        if(localStorage.getItem('warehouseTransactions')) warehouseTransactions = JSON.parse(localStorage.getItem('warehouseTransactions'));
+        if(localStorage.getItem('dailyProfitsData')) dailyProfits = JSON.parse(localStorage.getItem('dailyProfitsData'));
+        if(localStorage.getItem('monthlyProfitArchive')) monthlyProfitArchive = JSON.parse(localStorage.getItem('monthlyProfitArchive'));
+        if(localStorage.getItem('currencyRate')) currencyRate = parseFloat(localStorage.getItem('currencyRate'));
+        if(localStorage.getItem('appLanguage')) currentLang = localStorage.getItem('appLanguage');
+        if(localStorage.getItem('appTheme')) { currentTheme = localStorage.getItem('appTheme'); if(currentTheme === 'dark') document.body.classList.add('dark'); }
+        if(localStorage.getItem('googleClientId')) googleClientId = localStorage.getItem('googleClientId');
+        document.getElementById('usdRate').value = currencyRate;
+        document.getElementById('googleClientId').value = googleClientId;
+        document.getElementById('profitDate').value = getTodayDateKey();
+        updateExchangeRateDisplay();
+        updateGoogleStatus();
+        refreshAll();
+    }
+
+    function saveAll() {
+        localStorage.setItem('salesData', JSON.stringify(sales));
+        localStorage.setItem('purchasesData', JSON.stringify(purchases));
+        localStorage.setItem('debtsData', JSON.stringify(debts));
+        localStorage.setItem('warehousesData', JSON.stringify(warehouses));
+        localStorage.setItem('warehouseTransactions', JSON.stringify(warehouseTransactions));
+        localStorage.setItem('dailyProfitsData', JSON.stringify(dailyProfits));
+        localStorage.setItem('monthlyProfitArchive', JSON.stringify(monthlyProfitArchive));
+        localStorage.setItem('currencyRate', currencyRate);
+        localStorage.setItem('appLanguage', currentLang);
+        localStorage.setItem('appTheme', currentTheme);
+        localStorage.setItem('googleClientId', googleClientId);
+        updateExchangeRateDisplay();
+    }
+
+    function getTodayDateKey() { return new Date().toISOString().slice(0,10); }
+    function getMonthKey(dateString) { return dateString.slice(0,7); }
+    function formatCurrency(value) { return `${Number(value || 0).toLocaleString()} ل.س`; }
+
+    function getTodayProfitTotal() { const today = getTodayDateKey(); return dailyProfits.filter(entry => entry.date === today).reduce((sum, entry) => sum + Number(entry.amount), 0); }
+    function getCurrentMonthProfitTotal() { const currentMonth = getMonthKey(getTodayDateKey()); return dailyProfits.filter(entry => getMonthKey(entry.date) === currentMonth).reduce((sum, entry) => sum + Number(entry.amount), 0); }
+    function getYearlyProfitTotal() { const currentYear = getTodayDateKey().slice(0,4); const archived = Object.entries(monthlyProfitArchive).reduce((sum, [monthKey, total]) => monthKey.startsWith(currentYear) ? sum + Number(total) : sum, 0); return archived + getCurrentMonthProfitTotal(); }
+
+    function updateDateTime() {
+        let now = new Date();
+        document.getElementById('clock').innerHTML = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+        document.getElementById('date').innerHTML = now.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    }
+    setInterval(updateDateTime, 1000);
+    updateDateTime();
+
+    function updateExchangeRateDisplay() {
+        document.getElementById('rateValue').innerHTML = `1$ = ${currencyRate.toLocaleString()} ل.س`;
+        const heroRate = document.getElementById('heroRate');
+        if(heroRate) heroRate.innerHTML = `1$ = ${currencyRate.toLocaleString()}`;
+    }
+
+    function toggleLanguage() { 
+        currentLang = currentLang === 'ar' ? 'en' : 'ar'; 
+        localStorage.setItem('appLanguage', currentLang);
+        document.body.classList.toggle('english', currentLang === 'en');
+        document.body.style.direction = currentLang === 'ar' ? 'rtl' : 'ltr';
+        document.getElementById('logoText').innerHTML = currentLang === 'ar' ? 'صيدلية هزار' : 'Hazar Pharmacy';
+        document.getElementById('subtitleText').innerHTML = currentLang === 'ar' ? 'نظام إدارة ذكي | سوريا' : 'Smart Management System | Syria';
+        document.getElementById('calculatorBtn').innerHTML = currentLang === 'ar' ? 'آلة حاسبة' : 'Calculator';
+        document.getElementById('darkModeBtn').innerHTML = currentLang === 'ar' ? 'وضع مظلم' : 'Dark Mode';
+        document.getElementById('languageBtn').innerHTML = currentLang === 'ar' ? 'اللغة' : 'Language';
+        document.getElementById('settingsBtn').innerHTML = currentLang === 'ar' ? 'إعدادات' : 'Settings';
+        refreshAll();
+    }
+    function toggleTheme() { document.body.classList.toggle('dark'); currentTheme = document.body.classList.contains('dark') ? 'dark' : 'light'; localStorage.setItem('appTheme', currentTheme); refreshAll(); }
+    function openSettings() { document.getElementById('settingsModal').classList.add('active'); updateGoogleStatus(); }
+    function closeSettings() { document.getElementById('settingsModal').classList.remove('active'); }
+    function saveCurrencyRate() { let rate = parseFloat(document.getElementById('usdRate').value); if(rate && rate > 0) { currencyRate = rate; saveAll(); alert('تم حفظ السعر'); } }
+
+    function searchGoogle(event) {
+        if(event) event.preventDefault();
+        const input = document.getElementById('googleSearchInput');
+        const query = input.value.trim();
+        if(!query) { input.focus(); return; }
+        const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+        try {
+            const opened = window.open(url, '_blank', 'noopener,noreferrer');
+            if(!opened) window.location.href = url;
+        } catch(error) {
+            window.location.href = url;
+        }
+    }
+
+    function getBackupPayload() {
+        return {sales, purchases, debts, warehouses, warehouseTransactions, dailyProfits, monthlyProfitArchive, currencyRate, exportedAt: new Date().toISOString(), app: 'Hazar Pharmacy'};
+    }
+    function applyBackupData(data) {
+        sales = data.sales || [];
+        purchases = data.purchases || [];
+        debts = data.debts || [];
+        warehouses = data.warehouses || [];
+        warehouseTransactions = data.warehouseTransactions || [];
+        dailyProfits = data.dailyProfits || [];
+        monthlyProfitArchive = data.monthlyProfitArchive || {};
+        currencyRate = data.currencyRate || 15000;
+        document.getElementById('usdRate').value = currencyRate;
+        saveAll(); refreshAll();
+    }
+    function saveGoogleClientId() {
+        googleClientId = document.getElementById('googleClientId').value.trim();
+        localStorage.setItem('googleClientId', googleClientId);
+        googleTokenClient = null;
+        googleAccessToken = '';
+        updateGoogleStatus();
+        alert('تم حفظ Google Client ID');
+    }
+    function updateGoogleStatus(message) {
+        const status = document.getElementById('googleDriveStatus');
+        if(!status) return;
+        if(message) { status.innerHTML = message; return; }
+        if(googleAccessToken) status.innerHTML = 'مرتبط بحساب Google وجاهز للنسخ الاحتياطي';
+        else if(googleClientId) status.innerHTML = 'Client ID محفوظ، اضغط ربط حساب Google';
+        else status.innerHTML = 'غير مرتبط بحساب Google';
+    }
+    function ensureGoogleClient() {
+        googleClientId = document.getElementById('googleClientId').value.trim() || googleClientId;
+        if(!googleClientId) { alert('أدخل Google OAuth Client ID أولاً'); return false; }
+        if(!window.google || !google.accounts || !google.accounts.oauth2) { alert('تعذر تحميل مكتبة Google. تأكد من الاتصال بالإنترنت ثم أعد المحاولة.'); return false; }
+        if(!googleTokenClient) {
+            googleTokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: googleClientId,
+                scope: GOOGLE_DRIVE_SCOPE,
+                callback: tokenResponse => {
+                    if(tokenResponse && tokenResponse.access_token) {
+                        googleAccessToken = tokenResponse.access_token;
+                        updateGoogleStatus();
+                    } else {
+                        updateGoogleStatus('تعذر ربط حساب Google');
+                    }
+                }
+            });
+        }
+        return true;
+    }
+    function requestGoogleToken() {
+        return new Promise((resolve, reject) => {
+            if(!ensureGoogleClient()) { reject(new Error('Google Client غير جاهز')); return; }
+            googleTokenClient.callback = tokenResponse => {
+                if(tokenResponse && tokenResponse.access_token) {
+                    googleAccessToken = tokenResponse.access_token;
+                    updateGoogleStatus();
+                    resolve(googleAccessToken);
+                } else {
+                    reject(new Error('لم يتم الحصول على صلاحية Google'));
+                }
+            };
+            googleTokenClient.requestAccessToken({prompt: googleAccessToken ? '' : 'consent'});
+        });
+    }
+    async function connectGoogleDrive() {
+        try {
+            await requestGoogleToken();
+            localStorage.setItem('googleClientId', googleClientId);
+            alert('تم ربط حساب Google بنجاح');
+        } catch(error) {
+            alert(error.message || 'تعذر ربط Google');
+        }
+    }
+    async function googleDriveFetch(url, options = {}) {
+        if(!googleAccessToken) await requestGoogleToken();
+        const response = await fetch(url, {
+            ...options,
+            headers: {
+                ...(options.headers || {}),
+                Authorization: `Bearer ${googleAccessToken}`
+            }
+        });
+        if(response.status === 401) {
+            googleAccessToken = '';
+            await requestGoogleToken();
+            return googleDriveFetch(url, options);
+        }
+        if(!response.ok) {
+            const text = await response.text();
+            throw new Error(text || `Google Drive error ${response.status}`);
+        }
+        return response;
+    }
+    async function findGoogleBackupFile() {
+        const query = encodeURIComponent(`name='${GOOGLE_BACKUP_FILE}'`);
+        const fields = encodeURIComponent('files(id,name,modifiedTime)');
+        const response = await googleDriveFetch(`https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=${query}&fields=${fields}`);
+        const result = await response.json();
+        return (result.files && result.files[0]) || null;
+    }
+    async function uploadGoogleBackup(fileId) {
+        const boundary = 'hazar_backup_' + Date.now();
+        const metadata = {name: GOOGLE_BACKUP_FILE, parents: fileId ? undefined : ['appDataFolder']};
+        const body = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(getBackupPayload())}\r\n--${boundary}--`;
+        const url = fileId ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart` : 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
+        const method = fileId ? 'PATCH' : 'POST';
+        const response = await googleDriveFetch(url, {method, headers: {'Content-Type': `multipart/related; boundary=${boundary}`}, body});
+        return response.json();
+    }
+    async function backupToGoogleDrive() {
+        try {
+            updateGoogleStatus('جاري رفع النسخة الاحتياطية إلى Google Drive...');
+            if(!googleAccessToken) await requestGoogleToken();
+            const existing = await findGoogleBackupFile();
+            await uploadGoogleBackup(existing && existing.id);
+            updateGoogleStatus(`تم رفع النسخة الاحتياطية بنجاح: ${new Date().toLocaleString('ar-EG')}`);
+            alert('تم النسخ الاحتياطي على Google Drive');
+        } catch(error) {
+            updateGoogleStatus('فشل النسخ الاحتياطي إلى Google Drive');
+            alert('تعذر النسخ الاحتياطي: ' + (error.message || error));
+        }
+    }
+    async function restoreFromGoogleDrive() {
+        if(!confirm('سيتم استبدال البيانات الحالية بالنسخة الموجودة على Google Drive. هل تريد المتابعة؟')) return;
+        try {
+            updateGoogleStatus('جاري تحميل النسخة الاحتياطية من Google Drive...');
+            if(!googleAccessToken) await requestGoogleToken();
+            const backupFile = await findGoogleBackupFile();
+            if(!backupFile) { alert('لا توجد نسخة احتياطية محفوظة على Google Drive'); updateGoogleStatus(); return; }
+            const response = await googleDriveFetch(`https://www.googleapis.com/drive/v3/files/${backupFile.id}?alt=media`);
+            const data = await response.json();
+            applyBackupData(data);
+            updateGoogleStatus(`تمت الاستعادة من Google Drive: ${new Date().toLocaleString('ar-EG')}`);
+            alert('تمت استعادة النسخة من Google Drive');
+        } catch(error) {
+            updateGoogleStatus('فشلت الاستعادة من Google Drive');
+            alert('تعذرت الاستعادة: ' + (error.message || error));
+        }
+    }
+
+    function openPage(page) {
+        document.getElementById('homePage').classList.add('hide-home');
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(page + 'Page').classList.add('active');
+        if(page === 'sales') refreshSalesDisplay();
+        if(page === 'purchases') refreshPurchasesDisplay();
+        if(page === 'debts') refreshDebtsDisplay();
+        if(page === 'reports') refreshReportsDisplay();
+        if(page === 'warehouses') refreshWarehousesDisplay();
+        if(page === 'profit') refreshProfitDisplay();
+    }
+
+    function openQuickSale(event) {
+        if(event) event.stopPropagation();
+        clearQuickSaleForm();
+        document.getElementById('quickSaleModal').classList.add('active');
+        setTimeout(() => document.getElementById('quickItemName').focus(), 80);
+    }
+
+    function closeQuickSale() { document.getElementById('quickSaleModal').classList.remove('active'); }
+    function clearQuickSaleForm() {
+        document.getElementById('quickItemName').value = '';
+        document.getElementById('quickItemQty').value = '';
+        document.getElementById('quickItemPrice').value = '';
+        document.getElementById('quickCustomerName').value = '';
+        document.getElementById('quickUsdHint').innerHTML = '';
+        document.getElementById('quickPaymentType').value = 'cash';
+        document.getElementById('quickCustomerDiv').style.display = 'none';
+    }
+    function toggleQuickCustomer() {
+        document.getElementById('quickCustomerDiv').style.display = document.getElementById('quickPaymentType').value === 'credit' ? 'block' : 'none';
+    }
+    function updateQuickUsdPrice() {
+        let priceSYP = parseFloat(document.getElementById('quickItemPrice').value);
+        if(priceSYP && currencyRate > 0) document.getElementById('quickUsdHint').innerHTML = `ما يعادل: ${(priceSYP/currencyRate).toFixed(2)} دولار`;
+        else document.getElementById('quickUsdHint').innerHTML = '';
+    }
+    function addQuickSale() {
+        let name = document.getElementById('quickItemName').value.trim(), qty = parseInt(document.getElementById('quickItemQty').value, 10), price = parseFloat(document.getElementById('quickItemPrice').value), type = document.getElementById('quickPaymentType').value, customer = document.getElementById('quickCustomerName').value.trim();
+        if(!name || !qty || qty <= 0 || !price || price <= 0) { alert('املأ جميع الحقول بشكل صحيح'); return; }
+        if(type === 'credit' && !customer) { alert('أدخل اسم الزبون'); return; }
+        let total = qty * price, now = new Date();
+        sales.unshift({date: now.toISOString().slice(0,10), time: now.toLocaleTimeString('ar-EG'), item: name, quantity: qty, price: price, total: total, type: type, customer: customer || ''});
+        if(type === 'credit') { let debt = debts.find(d => d.customer === customer); if(debt) debt.amount += total; else debts.unshift({customer: customer, amount: total, paid: 0, date: now.toISOString().slice(0,10), id: Date.now()}); }
+        saveAll(); refreshAll(); closeQuickSale(); alert('تم تسجيل الفاتورة');
+    }
+
+    function closePage(pageId) { document.getElementById(pageId).classList.remove('active'); document.getElementById('homePage').classList.remove('hide-home'); }
+    function goHome() { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('homePage').classList.remove('hide-home'); }
+
+    function toggleSalesForm() { document.getElementById('salesForm').classList.toggle('show'); if(!document.getElementById('salesForm').classList.contains('show')) clearSalesForm(); }
+    function clearSalesForm() { document.getElementById('itemName').value = ''; document.getElementById('itemQty').value = ''; document.getElementById('itemPrice').value = ''; document.getElementById('customerName').value = ''; document.getElementById('usdHint').innerHTML = ''; document.getElementById('paymentType').value = 'cash'; document.getElementById('customerDiv').style.display = 'none'; }
+    function updateUsdPrice() { let priceSYP = parseFloat(document.getElementById('itemPrice').value); if(priceSYP && currencyRate > 0) document.getElementById('usdHint').innerHTML = `ما يعادل: ${(priceSYP/currencyRate).toFixed(2)} دولار`; else document.getElementById('usdHint').innerHTML = ''; }
+    
+    function addSale() {
+        let name = document.getElementById('itemName').value.trim(), qty = parseInt(document.getElementById('itemQty').value, 10), price = parseFloat(document.getElementById('itemPrice').value), type = document.getElementById('paymentType').value, customer = document.getElementById('customerName').value.trim();
+        if(!name || !qty || qty <= 0 || !price || price <= 0) { alert('املأ جميع الحقول بشكل صحيح'); return; }
+        if(type === 'credit' && !customer) { alert('أدخل اسم الزبون'); return; }
+        let total = qty * price, now = new Date();
+        sales.unshift({date: now.toISOString().slice(0,10), time: now.toLocaleTimeString('ar-EG'), item: name, quantity: qty, price: price, total: total, type: type, customer: customer || ''});
+        if(type === 'credit') { let debt = debts.find(d => d.customer === customer); if(debt) debt.amount += total; else debts.unshift({customer: customer, amount: total, paid: 0, date: now.toISOString().slice(0,10), id: Date.now()}); }
+        saveAll(); refreshAll(); document.getElementById('salesForm').classList.remove('show'); alert('تم تسجيل الفاتورة');
+    }
+    
+    function editSale(index) {
+        let sale = sales[index];
+        let newQty = parseInt(prompt('العدد الجديد:', sale.quantity));
+        let newPrice = parseFloat(prompt('السعر الجديد (ل.س):', sale.price));
+        if(!newQty || newQty <= 0 || !newPrice || newPrice <= 0) { alert('يجب إدخال قيم صحيحة'); return; }
+        let oldTotal = sale.total;
+        sale.quantity = newQty; sale.price = newPrice; sale.total = newQty * newPrice;
+        if(sale.type === 'credit' && sale.customer) {
+            let debt = debts.find(d => d.customer === sale.customer);
+            if(debt) debt.amount = debt.amount - oldTotal + sale.total;
+        }
+        saveAll(); refreshAll(); alert('تم تعديل الفاتورة');
+    }
+    
+    function addExtraDebt(index) {
+        let debt = debts[index];
+        let extraAmount = parseFloat(prompt(`مبلغ الدين الإضافي للزبون ${debt.customer} (ل.س):`));
+        if(!extraAmount || extraAmount <= 0) { alert('يجب إدخال مبلغ صحيح'); return; }
+        debt.amount += extraAmount;
+        saveAll(); refreshAll(); alert('تم إضافة الدين');
+    }
+    
+    function refreshSalesDisplay() {
+        let today = getTodayDateKey();
+        document.getElementById('todayDate').innerHTML = today;
+        let todaySales = sales.filter(s => s.date === today);
+        document.getElementById('todaySalesTotal').innerHTML = todaySales.reduce((sum,s)=>sum+s.total,0).toLocaleString();
+        let todayTbody = document.getElementById('todaySalesTable');
+        todayTbody.innerHTML = '';
+        if(todaySales.length === 0) { todayTbody.innerHTML = '<tr><td colspan="7">لا توجد مبيعات اليوم</td></tr>'; }
+        else { todaySales.forEach(s => { todayTbody.innerHTML += `<tr><td>${s.time||'-'}</td><td>${s.item}</td><td>${s.quantity}</td><td>${s.price.toLocaleString()}</td><td>${s.total.toLocaleString()}</td><td>${s.type==='cash'?'نقدي':'دين'}</td><td>${s.customer||'-'}</td></tr>`; }); }
+        let allTbody = document.getElementById('allSalesTable');
+        allTbody.innerHTML = '';
+        sales.forEach((s, idx) => { allTbody.innerHTML += `<tr><td>${s.date}</td><td>${s.item}</td><td>${s.quantity}</td><td>${s.price.toLocaleString()}</td><td>${s.total.toLocaleString()}</td><td>${s.type==='cash'?'نقدي':'دين'}</td><td>${s.customer||'-'}</td><td><button class="edit-btn" onclick="editSale(${idx})">تعديل</button></td></tr>`; });
+    }
+
+    function togglePurchasesForm() { document.getElementById('purchasesForm').classList.toggle('show'); }
+    function addPurchase() {
+        let desc = document.getElementById('purchaseDesc').value, amount = parseFloat(document.getElementById('purchaseAmount').value);
+        if(!desc || !amount || amount <= 0) { alert('املأ جميع الحقول'); return; }
+        let now = new Date();
+        purchases.unshift({date: now.toISOString().slice(0,10), time: now.toLocaleTimeString('ar-EG'), desc: desc, amount: amount});
+        saveAll(); refreshAll(); document.getElementById('purchasesForm').classList.remove('show'); alert('تم تسجيل فاتورة الشراء');
+    }
+    function refreshPurchasesDisplay() {
+        let today = getTodayDateKey();
+        document.getElementById('todayDatePurchases').innerHTML = today;
+        let todayPurchases = purchases.filter(p => p.date === today);
+        document.getElementById('todayPurchasesTotal').innerHTML = todayPurchases.reduce((sum,p)=>sum+p.amount,0).toLocaleString();
+        let todayTbody = document.getElementById('todayPurchasesTable');
+        todayTbody.innerHTML = '';
+        if(todayPurchases.length === 0) { todayTbody.innerHTML = '<tr><td colspan="3">لا توجد مشتريات اليوم</td></tr>'; }
+        else { todayPurchases.forEach(p => { todayTbody.innerHTML += `<tr><td>${p.time||'-'}</td><td>${p.desc}</td><td>${p.amount.toLocaleString()}</td></tr>`; }); }
+        let allTbody = document.getElementById('allPurchasesTable');
+        allTbody.innerHTML = '';
+        purchases.forEach(p => { allTbody.innerHTML += `<tr><td>${p.date}</td><td>${p.desc}</td><td>${p.amount.toLocaleString()}</td></tr>`; });
+    }
+
+    function toggleDebtsForm() { document.getElementById('debtsForm').classList.toggle('show'); }
+    function addDebt() {
+        let customer = document.getElementById('debtCustomer').value, amount = parseFloat(document.getElementById('debtAmount').value);
+        if(!customer || !amount || amount <= 0) { alert('املأ جميع الحقول'); return; }
+        debts.unshift({customer: customer, amount: amount, paid: 0, date: getTodayDateKey(), id: Date.now()});
+        saveAll(); refreshAll(); document.getElementById('debtsForm').classList.remove('show'); alert('تم تسجيل الدين');
+    }
+    function payDebt(index) {
+        let payment = parseFloat(prompt('المبلغ المدفوع:'));
+        if(payment && payment > 0) {
+            if(payment > (debts[index].amount - debts[index].paid)) { alert('المبلغ أكبر من المتبقي'); return; }
+            debts[index].paid += payment;
+            if(debts[index].paid >= debts[index].amount) debts.splice(index,1);
+            saveAll(); refreshAll(); alert('تم تسجيل السداد');
+        }
+    }
+    function refreshDebtsDisplay() {
+        let tbody = document.getElementById('debtsTable');
+        tbody.innerHTML = '';
+        if(debts.length === 0) { tbody.innerHTML = '<tr><td colspan="7">لا توجد ديون مسجلة</td></tr>'; }
+        else { debts.forEach((d, i) => { let remaining = d.amount - d.paid; tbody.innerHTML += `<tr><td>${d.customer}</td><td>${d.amount.toLocaleString()}</td><td>${d.paid.toLocaleString()}</td><td style="color:${remaining>0?'#dc2626':'#16a34a'}">${remaining.toLocaleString()}</td><td>${d.date}</td><td><button onclick="payDebt(${i})" style="background:#d97706;">تسديد</button></td><td><button class="add-debt-btn" onclick="addExtraDebt(${i})">إضافة دين</button></td></tr>`; }); }
+    }
+
+    function getReportTotal(days) {
+        let now = new Date(), filterDate = new Date();
+        if(days === 7) filterDate.setDate(now.getDate() - 7);
+        else if(days === 30) filterDate.setMonth(now.getMonth() - 1);
+        else if(days === 365) filterDate.setFullYear(now.getFullYear() - 1);
+        else filterDate = new Date(now.toDateString());
+        return sales.filter(s => new Date(s.date) >= filterDate).reduce((sum,s)=>sum+s.total,0);
+    }
+    function refreshReportsDisplay() {
+        document.getElementById('dailyTotal').innerHTML = getReportTotal(1).toLocaleString() + ' ل.س';
+        document.getElementById('weeklyTotal').innerHTML = getReportTotal(7).toLocaleString() + ' ل.س';
+        document.getElementById('monthlyTotal').innerHTML = getReportTotal(30).toLocaleString() + ' ل.س';
+        document.getElementById('yearlyTotal').innerHTML = getReportTotal(365).toLocaleString() + ' ل.س';
+        let monthAgo = new Date(); monthAgo.setMonth(monthAgo.getMonth() - 1);
+        document.getElementById('monthlyPurchases').innerHTML = purchases.filter(p => new Date(p.date) >= monthAgo).reduce((s,p)=>s+p.amount,0).toLocaleString() + ' ل.س';
+        document.getElementById('totalDebts').innerHTML = debts.reduce((s,d)=>s+(d.amount-d.paid),0).toLocaleString() + ' ل.س';
+    }
+
+    function refreshProfitDisplay() {
+        document.getElementById('profitDate').value = document.getElementById('profitDate').value || getTodayDateKey();
+        document.getElementById('dailyProfitTotal').innerHTML = formatCurrency(getTodayProfitTotal());
+        document.getElementById('monthlyProfitTotal').innerHTML = formatCurrency(getCurrentMonthProfitTotal());
+        document.getElementById('yearlyProfitTotal').innerHTML = formatCurrency(getYearlyProfitTotal());
+        const profitTable = document.getElementById('profitTable');
+        profitTable.innerHTML = '';
+        if(dailyProfits.length === 0) { profitTable.innerHTML = '<tr><td colspan="3">لا يوجد صافي ربح مسجل</td></tr>'; }
+        else { dailyProfits.slice().sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(entry => { profitTable.innerHTML += `<tr><td>${entry.date}</td><td>${Number(entry.amount).toLocaleString()}</td><td>${entry.note || '-'}</td></tr>`; }); }
+        const monthlyTable = document.getElementById('monthlyProfitTable');
+        monthlyTable.innerHTML = '';
+        const monthlyTotals = {};
+        dailyProfits.forEach(entry => { const monthKey = getMonthKey(entry.date); monthlyTotals[monthKey] = (monthlyTotals[monthKey] || 0) + Number(entry.amount); });
+        Object.keys(monthlyTotals).sort().reverse().forEach(monthKey => { monthlyTable.innerHTML += `<tr><td>${monthKey}</td><td>${Number(monthlyTotals[monthKey]).toLocaleString()}</td></tr>`; });
+        if(Object.keys(monthlyTotals).length === 0) { monthlyTable.innerHTML = '<tr><td colspan="2">لا توجد أرباح شهرية بعد</td></tr>'; }
+        updateProfitFooter();
+    }
+
+    function addDailyProfit() {
+        const date = document.getElementById('profitDate').value || getTodayDateKey();
+        const amount = parseFloat(document.getElementById('profitAmount').value);
+        const note = document.getElementById('profitNote').value.trim();
+        if(!date || !amount) { alert('أدخل التاريخ والمبلغ'); return; }
+        dailyProfits.unshift({ date, amount, note });
+        saveAll(); refreshProfitDisplay();
+        document.getElementById('profitAmount').value = ''; document.getElementById('profitNote').value = ''; document.getElementById('profitDate').value = getTodayDateKey();
+        alert('تم حفظ صافي الربح');
+    }
+
+    function updateProfitFooter() {
+        document.getElementById('footerDailyProfit').innerHTML = formatCurrency(getTodayProfitTotal());
+        document.getElementById('footerMonthlyProfit').innerHTML = formatCurrency(getCurrentMonthProfitTotal());
+        document.getElementById('footerYearlyProfit').innerHTML = formatCurrency(getYearlyProfitTotal());
+        const heroDailyProfit = document.getElementById('heroDailyProfit');
+        const heroMonthlyProfit = document.getElementById('heroMonthlyProfit');
+        if(heroDailyProfit) heroDailyProfit.innerHTML = formatCurrency(getTodayProfitTotal());
+        if(heroMonthlyProfit) heroMonthlyProfit.innerHTML = formatCurrency(getCurrentMonthProfitTotal());
+    }
+
+    function toggleWarehouseForm() { document.getElementById('warehouseForm').classList.toggle('show'); }
+    function showAddBalanceForm() { populateWarehouseSelect('selectWarehouse'); document.getElementById('addBalanceForm').classList.add('show'); document.getElementById('paymentForm').classList.remove('show'); }
+    function hideAddBalanceForm() { document.getElementById('addBalanceForm').classList.remove('show'); }
+    function showPaymentForm() { populateWarehouseSelect('selectWarehousePayment'); document.getElementById('paymentForm').classList.add('show'); document.getElementById('addBalanceForm').classList.remove('show'); }
+    function hidePaymentForm() { document.getElementById('paymentForm').classList.remove('show'); }
+    function populateWarehouseSelect(selectId) {
+        let select = document.getElementById(selectId);
+        select.innerHTML = '<option value="">اختر مستودع</option>';
+        warehouses.forEach(w => { select.innerHTML += `<option value="${w.id}">${w.name}</option>`; });
+    }
+    function addWarehouse() {
+        let name = document.getElementById('warehouseName').value.trim();
+        let openingBalance = parseFloat(document.getElementById('openingBalance').value) || 0;
+        if(!name) { alert('أدخل اسم المستودع'); return; }
+        let newWarehouse = { id: Date.now(), name: name, openingBalance: openingBalance, totalAdditions: 0, totalPayments: 0, lastUpdate: getTodayDateKey() };
+        warehouses.push(newWarehouse);
+        if(openingBalance > 0) { warehouseTransactions.unshift({ date: getTodayDateKey(), warehouseId: newWarehouse.id, warehouseName: name, type: 'opening', amount: openingBalance, notes: 'رصيد افتتاحي' }); }
+        saveAll(); refreshWarehousesDisplay(); document.getElementById('warehouseForm').classList.remove('show'); alert('تم إضافة المستودع');
+    }
+    function addBalance() {
+        let warehouseId = parseInt(document.getElementById('selectWarehouse').value);
+        let amount = parseFloat(document.getElementById('addBalanceAmount').value);
+        let notes = document.getElementById('addBalanceNotes').value || 'إضافة رصيد';
+        if(!warehouseId) { alert('اختر مستودع'); return; }
+        if(!amount || amount <= 0) { alert('أدخل مبلغ صحيح'); return; }
+        let warehouse = warehouses.find(w => w.id === warehouseId);
+        if(warehouse) {
+            warehouse.totalAdditions += amount;
+            warehouse.lastUpdate = getTodayDateKey();
+            warehouseTransactions.unshift({ date: getTodayDateKey(), warehouseId: warehouseId, warehouseName: warehouse.name, type: 'addition', amount: amount, notes: notes });
+            saveAll(); refreshWarehousesDisplay(); hideAddBalanceForm();
+            alert('تم إضافة الرصيد');
+        }
+    }
+    function addPayment() {
+        let warehouseId = parseInt(document.getElementById('selectWarehousePayment').value);
+        let amount = parseFloat(document.getElementById('paymentAmount').value);
+        let notes = document.getElementById('paymentNotes').value || 'دفعة';
+        if(!warehouseId) { alert('اختر مستودع'); return; }
+        if(!amount || amount <= 0) { alert('أدخل مبلغ صحيح'); return; }
+        let warehouse = warehouses.find(w => w.id === warehouseId);
+        let currentBalance = warehouse.openingBalance + warehouse.totalAdditions - warehouse.totalPayments;
+        if(amount > currentBalance) { alert('المبلغ المدفوع أكبر من الرصيد'); return; }
+        if(warehouse) {
+            warehouse.totalPayments += amount;
+            warehouse.lastUpdate = getTodayDateKey();
+            warehouseTransactions.unshift({ date: getTodayDateKey(), warehouseId: warehouseId, warehouseName: warehouse.name, type: 'payment', amount: amount, notes: notes });
+            saveAll(); refreshWarehousesDisplay(); hidePaymentForm();
+            alert('تم تسجيل الدفعة');
+        }
+    }
+    function refreshWarehousesDisplay() {
+        let tbody = document.getElementById('warehousesTable');
+        tbody.innerHTML = '';
+        if(warehouses.length === 0) { tbody.innerHTML = '<tr><td colspan="7">لا توجد مستودعات</td></tr>'; }
+        else { warehouses.forEach(w => { let currentBalance = w.openingBalance + w.totalAdditions - w.totalPayments; tbody.innerHTML += `<tr><td>${w.name}</td><td>${w.openingBalance.toLocaleString()}</td><td>${w.totalAdditions.toLocaleString()}</td><td>${w.totalPayments.toLocaleString()}</td><td style="color:${currentBalance>=0?'#16a34a':'#dc2626'}">${currentBalance.toLocaleString()}</td><td>${w.lastUpdate}</td><td><button class="delete-btn" onclick="deleteWarehouse(${w.id})">حذف</button></td></tr>`; }); }
+        let transTbody = document.getElementById('transactionsTable');
+        transTbody.innerHTML = '';
+        if(warehouseTransactions.length === 0) { transTbody.innerHTML = '<tr><td colspan="5">لا توجد حركات</td></tr>'; }
+        else { warehouseTransactions.forEach(t => { let typeText = t.type === 'opening' ? 'رصيد افتتاحي' : (t.type === 'addition' ? 'إضافة' : 'دفعة'); transTbody.innerHTML += `<tr><td>${t.date}</td><td>${t.warehouseName}</td><td>${typeText}</td><td style="color:${t.type==='payment'?'#dc2626':'#16a34a'}">${t.amount.toLocaleString()}</td><td>${t.notes}</td></tr>`; }); }
+    }
+    function deleteWarehouse(id) {
+        if(confirm('هل أنت متأكد من الحذف؟')) {
+            warehouses = warehouses.filter(w => w.id !== id);
+            warehouseTransactions = warehouseTransactions.filter(t => t.warehouseId !== id);
+            saveAll(); refreshWarehousesDisplay();
+            alert('تم حذف المستودع');
+        }
+    }
+
+    function refreshAll() {
+        refreshSalesDisplay();
+        refreshPurchasesDisplay();
+        refreshDebtsDisplay();
+        refreshReportsDisplay();
+        refreshWarehousesDisplay();
+        refreshProfitDisplay();
+        document.getElementById('paymentType').addEventListener('change', function() { document.getElementById('customerDiv').style.display = this.value === 'credit' ? 'block' : 'none'; });
+    }
+
+    function exportBackup() {
+        let data = getBackupPayload();
+        let blob = new Blob([JSON.stringify(data)], {type:'application/json'});
+        let link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `Hazar_Pharmacy_${getTodayDateKey()}.json`;
+        link.click();
+        alert('تم تصدير النسخة');
+    }
+
+    function importBackup() {
+        let input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'application/json';
+        input.onchange = e => {
+            let file = e.target.files[0];
+            let reader = new FileReader();
+            reader.onload = ev => {
+                let data = JSON.parse(ev.target.result);
+                applyBackupData(data);
+                alert('تم استعادة النسخة');
+            };
+            reader.readAsText(file);
+        };
+        input.click();
+    }
+
+    document.addEventListener("DOMContentLoaded", loadData);
+</script>
+</body>
+</html>
